@@ -279,7 +279,7 @@
                 }
             });
         }
-    
+        
         showCounties(); // Show counties layer
     
         let csvData = []; // Store CSV data to access later
@@ -287,10 +287,10 @@
         fetch('mineral to county 3.csv')
             .then(response => response.text())
             .then(data => {
-                csvData = data.split('\n').map(row => row.split(','));
-    
+                const csvData = data.split('\n').map(row => row.split(','));
+
                 let column0Html = '';
-    
+
                 csvData.forEach(row => {
                     if (row.length > 1) {
                         const column0 = row[0].trim();
@@ -298,32 +298,36 @@
                         column0Html += `<div><a href="#" data-index="${csvData.indexOf(row)}" data-url="${column1}">${column0}</a></div>\n`;
                     }
                 });
-    
+
                 document.getElementById('fileContent').innerHTML = column0Html.trim();
-    
+
                 document.querySelectorAll('#fileContent a').forEach(link => {
                     link.addEventListener('click', function(event) {
                         event.preventDefault();
                         const url = this.getAttribute('data-url');
                         const index = this.getAttribute('data-index');
                         const bottomBox = document.querySelector('.centerBottomBox');
-    
-                        // Fetch Wikipedia content using the API
-                        fetchWikipediaContent(url);
-    
+
                         const selectedRow = csvData[index];
                         const remainingFields = selectedRow.slice(2).filter(field => field.trim());
                         const remainingFieldsHtml = remainingFields.join(', ');
                         bottomBox.textContent = remainingFieldsHtml;
-    
+
                         const countyNames = remainingFields;
                         highlightCounties(countyNames);
+
+                        // Update the #wikipediaButton text content and link
+                        const wikipediaButton = document.getElementById('wikipediaButton');
+                        wikipediaButton.textContent = selectedRow[0];
+                        wikipediaButton.href = url;
                     });
                 });
             })
             .catch(error => {
                 document.getElementById('fileContent').textContent = 'Error loading file: ' + error;
             });
+
+
     
         function highlightCounties(countyNames) {
             if (!geoJsonLayer) return;
